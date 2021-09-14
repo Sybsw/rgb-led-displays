@@ -124,7 +124,7 @@ if __name__ == "__main__":
     scriptGreen = []
     scriptPurple = []
 
-    for i in range(50):
+    for i in range(random.randint(30, 50)):
         scriptMainFlame.append((colorPattern, strip, colorFireSet1, DEF_WAIT))
     for i in range(10):
         scriptMainFlame.append((colorPattern, strip, colorFireSet2, DEF_WAIT))
