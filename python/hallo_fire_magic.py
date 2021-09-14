@@ -131,7 +131,7 @@ if __name__ == "__main__":
     random.shuffle(scriptMainFlame)
     scriptFinal.extend(scriptMainFlame)
 
-    for i in range(20):
+    for i in range(16):
         scriptPurple.append((colorPattern, strip, colorPurpleSet1, DEF_WAIT))
         scriptPurple.append((colorPattern, strip, colorPurpleSet3, DEF_WAIT))
     for i in range(10):
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     random.shuffle(scriptPurple)
     scriptFinal.extend(scriptPurple)
 
-    for i in range(20):
+    for i in range(6):
         scriptTranGreenPurple.append((colorPattern, strip, colorGreenPurple1, DEF_WAIT))
     random.shuffle(scriptTranGreenPurple)
     scriptFinal.extend(scriptTranGreenPurple)
