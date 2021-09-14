@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # Halloween Jack o lantern Magic Fire RGB LED display
 # Supposed to look like a realistic flame inside a jack o lantern with occasional shifts to green and purple magic
-# Intented for Waveshare RGB LED hat on raspberry-pi zero
+# Intended for Waveshare RGB LED hat on raspberry-pi zero
 # Simon Ward 2021
 # Adapted from NeoPixel StrandTest port from https://github.com/rpi-ws281x/rpi-ws281x-python
 
-import random, time
+import argparse, random, time
 from rpi_ws281x import PixelStrip, Color
-import argparse
 
 # LED strip configuration:
 LED_COUNT = 32  # Number of LED pixels.
@@ -15,7 +14,7 @@ LED_PIN = 18  # GPIO pin connected to the pixels (18 uses PWM!).
 # LED_PIN = 1        # GPIO pin connected to the pixels (1 uses SPI /dev/spidev0.0).
 LED_FREQ_HZ = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA = 1  # DMA channel to use for generating signal (try 1)
-LED_BRIGHTNESS = 100  # Set to 0 for darkest and 255 for brightest
+LED_BRIGHTNESS = 60  # Set to 0 for darkest and 255 for brightest
 LED_INVERT = False  # True to invert the signal (when using NPN transistor level shift)
 LED_CHANNEL = 0  # set to '1' for GPIOs 13, 19, 41, 45 or 53
 
@@ -23,7 +22,7 @@ DEF_WAIT = 3
 
 # Define functions which animate LEDs in various ways.
 def colorWipe(strip, color, wait_ms=50):
-    """Wipe color across display a pixel at a time."""
+    """Wipe a color across display a pixel at a time."""
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
         strip.show()
@@ -31,7 +30,7 @@ def colorWipe(strip, color, wait_ms=50):
 
 
 def colorPattern(strip, colors, wait_ms=50):
-    """Set color from a pixel at a time."""
+    """Set a color randomly chosen from a list of colors across display a pixel at a time."""
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, random.choice(colors))
         strip.show()
@@ -55,36 +54,13 @@ if __name__ == "__main__":
         Color(255, 206, 0),
         Color(255, 232, 8),
     ]
-    colorFireSet1b = [
-        Color(255, 0, 0),
-        Color(255, 90, 0),
-        Color(255, 154, 0),
-        Color(255, 206, 0),
-        Color(255, 232, 8),
-        Color(244, 19, 14),
-    ]
+
     colorFireSet2 = [
-        Color(190, 16, 19),
-        Color(21, 48, 8),
-        Color(228, 83, 35),
-        Color(238, 119, 28),
-        Color(246, 150, 14),
-        Color(255, 205, 6),
-    ]
-    colorFireSet3 = [
         Color(168, 6, 6),
         Color(187, 0, 9),
         Color(203, 12, 9),
         Color(216, 41, 28),
         Color(235, 58, 30),
-    ]
-    colorFireSet4 = [
-        Color(191, 2, 4),
-        Color(235, 3, 6),
-        Color(254, 149, 0),
-        Color(247, 173, 17),
-        Color(244, 232, 0),
-        Color(217, 45, 2),
     ]
 
     colorPurpleSet1 = [
@@ -99,11 +75,27 @@ if __name__ == "__main__":
         Color(174, 0, 251),
         Color(181, 255, 217),
     ]
+    colorPurpleSet3 = [
+        Color(71, 4, 108),
+        Color(115, 30, 157),
+        Color(160, 65, 197),
+        Color(205, 109, 243),
+    ]
     colorGreenSet1 = [
         Color(57, 255, 20),
         Color(1, 186, 181),
         Color(50, 205, 50),
         Color(57, 255, 20),
+    ]
+    colorGreenPurple1 = [
+        Color(57, 255, 20),
+        Color(1, 186, 181),
+        Color(50, 205, 50),
+        Color(57, 255, 20),
+        Color(71, 4, 108),
+        Color(115, 30, 157),
+        Color(160, 65, 197),
+        Color(205, 109, 243),
     ]
 
     # Create NeoPixel object with appropriate configuration.
@@ -123,156 +115,45 @@ if __name__ == "__main__":
     if not args.clear:
         print('Use "-c" argument to clear LEDs on exit')
 
-    try:
+    # Build the performance script (Add functions and params as tuples to list)
+    scriptFinal = []
+    scriptMainFlame = []
+    scriptTranFlameGreen = []
+    scriptTranFlamePurple = []
+    scriptTranGreenPurple = []
+    scriptGreen = []
+    scriptPurple = []
 
+    for i in range(50):
+        scriptMainFlame.append((colorPattern, strip, colorFireSet1, DEF_WAIT))
+    for i in range(10):
+        scriptMainFlame.append((colorPattern, strip, colorFireSet2, DEF_WAIT))
+    random.shuffle(scriptMainFlame)
+    scriptFinal.extend(scriptMainFlame)
+
+    for i in range(20):
+        scriptPurple.append((colorPattern, strip, colorPurpleSet1, DEF_WAIT))
+        scriptPurple.append((colorPattern, strip, colorPurpleSet3, DEF_WAIT))
+    for i in range(10):
+        scriptPurple.append((colorPattern, strip, colorPurpleSet2, DEF_WAIT))
+    random.shuffle(scriptPurple)
+    scriptFinal.extend(scriptPurple)
+
+    for i in range(20):
+        scriptTranGreenPurple.append((colorPattern, strip, colorGreenPurple1, DEF_WAIT))
+    random.shuffle(scriptTranGreenPurple)
+    scriptFinal.extend(scriptTranGreenPurple)
+
+    for i in range(20):
+        scriptGreen.append((colorPattern, strip, colorGreenSet1, DEF_WAIT))
+    random.shuffle(scriptGreen)
+    scriptFinal.extend(scriptGreen)
+
+    # Run the performance
+    try:
         while True:
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorFireSet1b, DEF_WAIT)
-            colorPattern(strip, colorFireSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet1, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
-            colorPattern(strip, colorPurpleSet2, DEF_WAIT)
-            colorPattern(strip, colorGreenSet1, DEF_WAIT)
+            for e in scriptFinal:
+                e[0](*e[1:])
 
     except KeyboardInterrupt:
         if args.clear:
